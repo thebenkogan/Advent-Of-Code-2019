@@ -1,0 +1,4 @@
+(executables
+ (public_names 1)
+ (names D1)
+ (libraries AOC))
