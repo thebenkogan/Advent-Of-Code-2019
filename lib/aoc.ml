@@ -12,4 +12,6 @@ let read_lines () =
   let rec read acc =
     try read (input_line chan :: acc) with End_of_file -> List.rev acc
   in
-  read []
+  let lines = read [] in
+  close_in chan;
+  lines
