@@ -1,10 +1,12 @@
 open AOC.Aoc
 
-exception Halt
+let lines = read_lines ()
 
 let read_mem () =
-  read_lines () |> List.hd |> String.split_on_char ',' |> List.map int_of_string
+  lines |> List.hd |> String.split_on_char ',' |> List.map int_of_string
   |> Array.of_list
+
+exception Halt
 
 let execute op v1 v2 =
   if op = 1 then v1 + v2
