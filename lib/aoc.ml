@@ -15,3 +15,5 @@ let read_lines () =
   let lines = read [] in
   close_in chan;
   lines
+
+let string_to_chars s = List.init (String.length s) (String.get s)
