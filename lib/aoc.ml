@@ -17,3 +17,28 @@ let read_lines () =
   lines
 
 let string_to_chars s = List.init (String.length s) (String.get s)
+
+let print_list printer lst =
+  let rec build_str = function
+    | [] -> "[]"
+    | [ a ] -> printer a ^ "]"
+    | h :: t -> printer h ^ ", " ^ build_str t
+  in
+  "[" ^ build_str lst
+
+let permutations elements =
+  let len = List.length elements in
+  let gen_opts acc =
+    elements
+    |> List.filter (fun opt -> not (List.mem opt acc))
+    |> List.map (fun opt -> opt :: acc)
+  in
+  let rec build size accs =
+    if size = len then accs
+    else
+      accs
+      |> List.map (fun acc -> gen_opts acc)
+      |> List.flatten
+      |> build (size + 1)
+  in
+  build 0 [ [] ]
