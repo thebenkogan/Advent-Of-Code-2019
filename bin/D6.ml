@@ -1,4 +1,4 @@
-open AOC.Aoc
+open AOC.Utils
 
 let lines = read_lines ()
 

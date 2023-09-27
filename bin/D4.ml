@@ -1,4 +1,4 @@
-open AOC.Aoc
+open AOC.Utils
 
 let low, high =
   let split =

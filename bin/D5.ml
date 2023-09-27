@@ -1,5 +1,5 @@
 open AOC
-open Aoc
+open Utils
 
 let lines = read_lines ()
 

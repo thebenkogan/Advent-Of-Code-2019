@@ -1,4 +1,4 @@
-open AOC.Aoc
+open AOC.Utils
 
 let fuel mass = (mass / 3) - 2
 
