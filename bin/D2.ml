@@ -1,39 +1,22 @@
-open AOC.Aoc
+open AOC
+open Aoc
 
 let lines = read_lines ()
 
-let read_mem () =
-  lines |> List.hd |> String.split_on_char ',' |> List.map int_of_string
-  |> Array.of_list
+let run_with noun verb =
+  let mem = Intcode.read_mem lines in
+  mem.(1) <- noun;
+  mem.(2) <- verb;
+  try
+    let _ = Intcode.run (ref []) mem 0 in
+    failwith "didn't halt"
+  with Intcode.Halt -> mem.(0)
 
-exception Halt
-
-let execute op v1 v2 =
-  if op = 1 then v1 + v2
-  else if op = 2 then v1 * v2
-  else if op = 99 then raise Halt
-  else failwith "unrecognized op"
-
-let run noun verb =
-  let arr = read_mem () in
-  arr.(1) <- noun;
-  arr.(2) <- verb;
-  let rec compute pos =
-    let op = arr.(pos) in
-    let v1 = arr.(arr.(pos + 1)) in
-    let v2 = arr.(arr.(pos + 2)) in
-    let dest = arr.(pos + 3) in
-    arr.(dest) <- execute op v1 v2;
-    compute (pos + 4)
-  in
-  try compute 0 with Halt -> arr.(0)
-
-let p1 = run 12 2
-let output = 19690720
+let p1 = run_with 12 2
 
 let p2 =
   let rec find noun verb =
-    if run noun verb = output then (noun, verb)
+    if run_with noun verb = 19690720 then (noun, verb)
     else if verb + 1 = 100 then find (noun + 1) 0
     else find noun (verb + 1)
   in
