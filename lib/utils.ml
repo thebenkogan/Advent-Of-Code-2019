@@ -18,13 +18,18 @@ let read_lines () =
 
 let string_to_chars s = List.init (String.length s) (String.get s)
 
-let print_list printer lst =
-  let rec build_str = function
-    | [] -> "[]"
-    | [ a ] -> printer a ^ "]"
-    | h :: t -> printer h ^ ", " ^ build_str t
+let list_to_string printer lst =
+  "[" ^ String.concat ", " (List.map printer lst) ^ "]"
+
+let chunk chunk_size elements =
+  let _, first, chunked =
+    List.fold_right
+      (fun elt (size, curr, acc) ->
+        if size = chunk_size then (1, [ elt ], curr :: acc)
+        else (size + 1, elt :: curr, acc))
+      elements (0, [], [])
   in
-  "[" ^ build_str lst
+  first :: chunked
 
 let permutations elements =
   let len = List.length elements in
