@@ -5,12 +5,12 @@ let lines = read_lines ()
 
 let run_with noun verb =
   let mem = Intcode.read_mem lines in
-  mem.(1) <- noun;
-  mem.(2) <- verb;
+  Intcode.set_addr mem 1 noun;
+  Intcode.set_addr mem 2 verb;
   try
     let _ = Intcode.run (ref []) mem 0 in
     failwith "didn't halt"
-  with Intcode.Halt -> mem.(0)
+  with Intcode.Halt -> Intcode.get_addr mem 0
 
 let p1 = run_with 12 2
 
