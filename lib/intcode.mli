@@ -11,14 +11,15 @@ val set_addr : mem -> int -> int -> unit
 val read_mem : string list -> mem
 (** [read_mem lines] is the intcode program represented by the input *)
 
-type result = { output : int; mem : mem; pos : int; rel_base : int }
+type state = { mem : mem; pos : int; rel_base : int }
 
-val run : int list ref -> mem -> int -> int -> result
-(** [read_mem input_buffer mem pos rel_base] runs the intcode program with memory [mem] 
-    starting at index [pos] until the first output if there is one. Otherwise,
-    it will raise [Halt]. At any input instruction, it reads the next value from 
-    the [input_buffer]. Returns a tuple of the output value, finishing memory, 
-    and the position of the next instruction to execute. *)
+val initial_state : mem -> state
+
+val run : int list ref -> state -> int * state
+(** [read_mem input_buffer state] runs the intcode program with the provided
+    state until the first output if there is one. Otherwise, it will raise [Halt]. 
+    At any input instruction, it reads the next value from the [input_buffer]. 
+    Returns a tuple of the output value and the finishing state *)
 
 val run_until_halt : int list ref -> mem -> int
 (** [run_until_halt input_buffer mem] runs the intcode program with memory [mem] 

@@ -12,7 +12,9 @@ let set_addr = Hashtbl.add
 
 exception Halt
 
-type result = { output : int; mem : mem; pos : int; rel_base : int }
+type state = { mem : mem; pos : int; rel_base : int }
+
+let initial_state mem = { mem; pos = 0; rel_base = 0 }
 
 let rec read_modes mode_int =
   if mode_int = 0 then [] else (mode_int mod 10) :: read_modes (mode_int / 10)
@@ -31,13 +33,13 @@ let next_2 mem modes rel_base pos =
   let v2 = resolve_val mem mode2 rel_base (get_addr mem (pos + 2)) in
   (v1, v2)
 
-let run input_buffer mem start_pos start_rel_base =
+let run input_buffer { mem; pos; rel_base } =
   let read_input () =
     let input = List.hd !input_buffer in
     input_buffer := List.tl !input_buffer;
     input
   in
-  let rel_base = ref start_rel_base in
+  let rel_base = ref rel_base in
   let rec compute pos =
     let instr = get_addr mem pos in
     let modes, op = (instr / 100 |> read_modes, instr mod 100) in
@@ -50,7 +52,7 @@ let run input_buffer mem start_pos start_rel_base =
     else if op = 4 then
       let mode, _ = next_mode modes in
       let output = resolve_val mem mode !rel_base (get_addr mem (pos + 1)) in
-      { output; mem; pos = pos + 2; rel_base = !rel_base }
+      (output, { mem; pos = pos + 2; rel_base = !rel_base })
     else if op = 5 || op = 6 then
       let v1, v2 = next_2 mem modes !rel_base pos in
       if (op = 5 && v1 <> 0) || (op = 6 && v1 = 0) then compute v2
@@ -74,13 +76,13 @@ let run input_buffer mem start_pos start_rel_base =
       set_addr mem dest (if op = 1 then v1 + v2 else v1 * v2);
       compute (pos + 4)
   in
-  compute start_pos
+  compute pos
 
 let run_until_halt input_buffer mem =
   let last_output = ref 0 in
-  let rec loop mem pos rel_base =
-    let { output; mem; pos; rel_base } = run input_buffer mem pos rel_base in
+  let rec loop state =
+    let output, finish_state = run input_buffer state in
     last_output := output;
-    loop mem pos rel_base
+    loop finish_state
   in
-  try loop mem 0 0 with Halt -> !last_output
+  try mem |> initial_state |> loop with Halt -> !last_output

@@ -23,18 +23,16 @@ let turn facing dir =
   | _ -> failwith "invalid turn"
 
 let painted_hull starting_color =
-  let rec loop (x, y) dir cmap mem pos rel_base =
+  let rec loop (x, y) dir cmap state =
     try
       let input =
         match CoordMap.find_opt (x, y) cmap with Some White -> 1 | _ -> 0
       in
-      let res1 = Intcode.run (ref [ input; input ]) mem pos rel_base in
-      let res2 =
-        Intcode.run (ref [ input; input ]) res1.mem res1.pos res1.rel_base
-      in
-      let paint_color = if res1.output = 0 then Black else White in
+      let color_val, state1 = Intcode.run (ref [ input; input ]) state in
+      let turn_val, state2 = Intcode.run (ref [ input; input ]) state1 in
+      let paint_color = if color_val = 0 then Black else White in
       let next_cmap = CoordMap.add (x, y) paint_color cmap in
-      let turn_dir = if res2.output = 0 then Left else Right in
+      let turn_dir = if turn_val = 0 then Left else Right in
       let next_dir = turn dir turn_dir in
       let next_pos =
         match next_dir with
@@ -43,16 +41,16 @@ let painted_hull starting_color =
         | Up -> (x, y + 1)
         | Down -> (x, y - 1)
       in
-      loop next_pos next_dir next_cmap res2.mem res2.pos res2.rel_base
+      loop next_pos next_dir next_cmap state2
     with Intcode.Halt -> cmap
   in
   let cmap = CoordMap.singleton (0, 0) starting_color in
-  loop (0, 0) Up cmap (Intcode.read_mem lines) 0 0
+  loop (0, 0) Up cmap (Intcode.read_mem lines |> Intcode.initial_state)
 
 let p1 = CoordMap.cardinal (painted_hull Black)
 let () = Printf.printf "Part 1: %d\n" p1
 
-(* turns out all x values are non-zero and all y values are non-positive
+(* turns out all x values are non-negative and all y values are non-positive
    so I will just multiply the y coords by -1 to have valid indices *)
 let () =
   let hull = painted_hull White in
