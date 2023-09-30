@@ -11,8 +11,10 @@ val set_addr : mem -> int -> int -> unit
 val read_mem : string list -> mem
 (** [read_mem lines] is the intcode program represented by the input *)
 
-val run : int list ref -> mem -> int -> int * mem * int
-(** [read_mem input_buffer mem pos] runs the intcode program with memory [mem] 
+type result = { output : int; mem : mem; pos : int; rel_base : int }
+
+val run : int list ref -> mem -> int -> int -> result
+(** [read_mem input_buffer mem pos rel_base] runs the intcode program with memory [mem] 
     starting at index [pos] until the first output if there is one. Otherwise,
     it will raise [Halt]. At any input instruction, it reads the next value from 
     the [input_buffer]. Returns a tuple of the output value, finishing memory, 

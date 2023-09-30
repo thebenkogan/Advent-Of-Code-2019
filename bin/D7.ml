@@ -6,10 +6,10 @@ let lines = read_lines ()
 let run_amps =
   List.fold_left
     (fun input phase ->
-      let output, _, _ =
-        Intcode.run (ref [ phase; input ]) (Intcode.read_mem lines) 0
+      let res =
+        Intcode.run (ref [ phase; input ]) (Intcode.read_mem lines) 0 0
       in
-      output)
+      res.output)
     0
 
 let p1 =
@@ -18,7 +18,9 @@ let p1 =
 
 let run_feedback_loop settings =
   let states =
-    settings |> List.map (fun _ -> (Intcode.read_mem lines, 0)) |> Array.of_list
+    settings
+    |> List.map (fun _ -> (Intcode.read_mem lines, 0, 0))
+    |> Array.of_list
   in
   let input_buffers =
     settings |> List.map (fun setting -> ref [ setting ]) |> Array.of_list
@@ -26,14 +28,14 @@ let run_feedback_loop settings =
   input_buffers.(0) := !(input_buffers.(0)) @ [ 0 ];
   let last_output = ref 0 in
   let rec loop i =
-    let start_mem, start_pos = states.(i) in
-    let output, finish_mem, finish_pos =
-      Intcode.run input_buffers.(i) start_mem start_pos
+    let start_mem, start_pos, start_rel_base = states.(i) in
+    let res =
+      Intcode.run input_buffers.(i) start_mem start_pos start_rel_base
     in
-    last_output := output;
+    last_output := res.output;
     let next_i = (i + 1) mod 5 in
-    input_buffers.(next_i) := !(input_buffers.(next_i)) @ [ output ];
-    states.(i) <- (finish_mem, finish_pos);
+    input_buffers.(next_i) := !(input_buffers.(next_i)) @ [ res.output ];
+    states.(i) <- (res.mem, res.pos, res.rel_base);
     loop next_i
   in
   try loop 0 with Intcode.Halt -> !last_output

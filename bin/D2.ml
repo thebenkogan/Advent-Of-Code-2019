@@ -8,7 +8,7 @@ let run_with noun verb =
   Intcode.set_addr mem 1 noun;
   Intcode.set_addr mem 2 verb;
   try
-    let _ = Intcode.run (ref []) mem 0 in
+    let _ = Intcode.run (ref []) mem 0 0 in
     failwith "didn't halt"
   with Intcode.Halt -> Intcode.get_addr mem 0
 
