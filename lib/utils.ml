@@ -21,6 +21,9 @@ let string_to_chars s = List.init (String.length s) (String.get s)
 let list_to_string printer lst =
   "[" ^ String.concat ", " (List.map printer lst) ^ "]"
 
+let pair_to_string printer p =
+  "(" ^ (p |> fst |> printer) ^ ", " ^ (p |> snd |> printer) ^ ")"
+
 let chunk chunk_size elements =
   let _, first, chunked =
     List.fold_right
