@@ -40,12 +40,6 @@ let adj_map =
        (fun acc (p, rs) -> StringMap.add p.name (p.quantity, rs) acc)
        StringMap.empty
 
-(* Need a function that takes a name and an amount to produce.
-   First check if some mutable supply store has enough. If it does, take from there.
-   Otherwise, take recipe for product. Produce enough of each reactant, multiplying
-   by the the appropriate number to get the desired amount. When producing something
-   that requires ore, keep track of the total ore used in some global ref. *)
-
 let supply : (string, int) Hashtbl.t = Hashtbl.create 20
 let ore_produced = ref 0
 
