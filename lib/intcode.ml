@@ -35,9 +35,11 @@ let next_2 mem modes rel_base pos =
 
 let run input_buffer { mem; pos; rel_base } =
   let read_input () =
-    let input = List.hd !input_buffer in
-    input_buffer := List.tl !input_buffer;
-    input
+    try
+      let input = List.hd !input_buffer in
+      input_buffer := List.tl !input_buffer;
+      input
+    with Failure _ -> failwith "reading from empty input buffer"
   in
   let rel_base = ref rel_base in
   let rec compute pos =
