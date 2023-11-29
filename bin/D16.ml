@@ -8,7 +8,7 @@ let nums =
 let num_digits = List.length nums
 let base = [ 0; 1; 0; -1 ]
 
-let rec repeat times lst =
+let repeat times lst =
   let rec repeat_elt n elt =
     if n = times then [] else elt :: repeat_elt (n + 1) elt
   in

@@ -94,7 +94,6 @@ let key_paths =
        CoordMap.empty
 
 let satisfies_deps keys deps = List.for_all (fun k -> List.mem k keys) deps
-let num_keys = CoordMap.cardinal key_map
 
 module Node = struct
   type t = int * (int * int) * char list
