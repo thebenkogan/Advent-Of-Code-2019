@@ -16,6 +16,8 @@ type state = { mem : mem; pos : int; rel_base : int }
 
 let initial_state mem = { mem; pos = 0; rel_base = 0 }
 
+exception NeedInput of state
+
 let rec read_modes mode_int =
   if mode_int = 0 then [] else (mode_int mod 10) :: read_modes (mode_int / 10)
 
@@ -38,19 +40,22 @@ let run input_buffer { mem; pos; rel_base } =
     try
       let input = List.hd !input_buffer in
       input_buffer := List.tl !input_buffer;
-      input
-    with Failure _ -> failwith "reading from empty input buffer"
+      Some input
+    with Failure _ -> None
   in
   let rel_base = ref rel_base in
   let rec compute pos =
     let instr = get_addr mem pos in
     let modes, op = (instr / 100 |> read_modes, instr mod 100) in
     if op = 99 then raise Halt
-    else if op = 3 then (
+    else if op = 3 then
       let mode, _ = next_mode modes in
       let dest = get_addr mem (pos + 1) + if mode = 2 then !rel_base else 0 in
-      set_addr mem dest (read_input ());
-      compute (pos + 2))
+      match read_input () with
+      | Some i ->
+          set_addr mem dest i;
+          compute (pos + 2)
+      | None -> raise (NeedInput { mem; pos; rel_base = !rel_base })
     else if op = 4 then
       let mode, _ = next_mode modes in
       let output = resolve_val mem mode !rel_base (get_addr mem (pos + 1)) in

@@ -15,6 +15,8 @@ type state = { mem : mem; pos : int; rel_base : int }
 
 val initial_state : mem -> state
 
+exception NeedInput of state
+
 val run : int list ref -> state -> int * state
 (** [read_mem input_buffer state] runs the intcode program with the provided
     state until the first output if there is one. Otherwise, it will raise [Halt]. 
